@@ -302,7 +302,6 @@ def write_vt_data(session_state, progress, status_text):
     header, check = inputvt.get_header_info()
     survey = inputvt.get_survey()
 
-
     hdr = {}
     with open(session_state.inputaaspi) as f:
         for line in f:
@@ -311,6 +310,9 @@ def write_vt_data(session_state, progress, status_text):
                 if "=" in item:
                     hdr[item.split('=')[0].replace('"', '').replace("'", "")] = item.split('=')[
                         1].replace('"', '').replace("'", "")
+
+    hdr['hff'] = os.path.join('/'.join(session_state.inputaaspi.split('/')[:-1]), hdr['hff'])
+    hdr['in'] = os.path.join('/'.join(session_state.inputaaspi.split('/')[:-1]), hdr['in'])
 
     hff = {}
     with open(hdr['hff']) as f:
@@ -321,11 +323,14 @@ def write_vt_data(session_state, progress, status_text):
                     hff[item.split('=')[0].replace('"', '').replace("'", "")] = item.split('=')[
                         1].replace('"', '').replace("'", "")
 
+    hff['in'] = os.path.join(
+        '/'.join(session_state.inputaaspi.split('/')[:-1]), hff['in'])
+
     header.min_clip_amp = float(hdr['min_amplitude'])
     header.max_clip_amp = float(hdr['max_amplitude'])
 
     outputvt_name = os.path.join(
-        session_state.outputpath, session_state.inputaaspi.replace(".H", "_aaspi.vt"))
+        session_state.outputpath, session_state.inputaaspi.split('/')[-1].replace(".H", "_aaspi.vt"))
 
     try:
         os.remove(outputvt_name)
@@ -342,7 +347,8 @@ def write_vt_data(session_state, progress, status_text):
 
     for ii in range(int(hdr['n3'])):
         progress.progress(ii/int(hdr['n3']))
-        status_text.text('Conversion Progress : %d/%d' % (ii+1, int(hdr['n3'])))
+        status_text.text('Conversion Progress : %d/%d' %
+                         (ii+1, int(hdr['n3'])))
         for jj in range(int(hdr['n2'])):
             trk, bin = hffdata[ii, jj, 1], hffdata[ii, jj, 0]
             i, j, _ = xform_ijk_tbt.from_target((trk, bin, 0))
