@@ -65,6 +65,12 @@ def main():
             write_aaspi_binaries_from_vt(vt, vt_params, aaspi_params, progress, status_text)
             status_text.text("Apply pad3d on the volume...")
             run_pad3d(aaspi_params)
+            msg = {'Operation': 'VT to AASPI',
+                'VT Name': vt.get_filename(),
+                'VT Size': str(os.path.getsize(vt.get_filename())), 
+                'Survey Location': str(vt.get_survey().epsg_code())
+            }
+            track_usage(msg)
             st.success("Successfully converted!")
     else: 
         if st.sidebar.button('Selct AASPI File...'):
@@ -87,6 +93,12 @@ def main():
             progress = st.progress(0)
             status_text = st.empty()
             write_vt_data(session_state, progress, status_text)
+            inputvt = GeoIoVolume(session_state.inputvt)
+            msg = { 'Operation': 'AASPI to VT',
+                'VT Name': inputvt.get_filename(),
+                'Survey Location': str(inputvt.get_survey().epsg_code())
+            }
+            track_usage(msg)
             st.success("Successfully converted!")
 
     st.sidebar.title("About")

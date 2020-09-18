@@ -1,4 +1,6 @@
 import time
+import os, getpass
+from datetime import datetime
 import numpy as np
 import os
 import tkinter as tk
@@ -391,3 +393,31 @@ def run_pad3d(aaspi_params):
     os.chdir(p.output_dir)
     os.system("./pad3d.sh")
     os.chdir(curr_dir)
+
+def track_usage(msg, email_address='jie.hou@shell.com'):
+    """ Track the usage for this application.
+    
+    Parameters
+    ----------
+    email_address: str
+        The email address will receive the information about the usage.
+    msg: dict
+        A dictionary including all the messages will be included in the email.
+        
+    Returns
+    -------
+    """
+    
+    current_username = getpass.getuser()
+    email_subject = '"VT-AASPI Converter"'
+    body_text = '"User Name: '+current_username + '\n'
+    body_text+= 'Run Time:' + datetime.today().strftime('%Y-%m-%d') +'\n'
+    for key, value in msg.items():
+        body_text += key + ': '+value +'\n'
+        
+    body_text += '"'
+    
+    try:
+        os.system('echo {} | mail -s {} {}'.format(body_text, email_subject, email_address))
+    except:
+        pass 
